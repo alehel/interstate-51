@@ -104,6 +104,7 @@ func _build() -> void:
 	add_child(hud)
 	_loading.queue_free()
 	Audio.music(mission_def.music)
+	Audio.ambience(time_preset)
 	state = "playing"
 	_start_ms = Time.get_ticks_msec()
 	mission.running = true

@@ -148,6 +148,31 @@ func play_at(name: String, pos: Vector3, vol_db: float = 0.0, pitch: float = 1.0
 	best.unit_size = size
 	best.play()
 
+# --------------------------------------------------------------- ambience
+
+var _amb: Array[AudioStreamPlayer] = []
+
+## Desert wind all day, crickets after dark. Pass "" to stop.
+func ambience(time: String) -> void:
+	for p in _amb:
+		var tw := create_tween()
+		tw.tween_property(p, "volume_db", -60.0, 1.0)
+		tw.tween_callback(p.queue_free)
+	_amb.clear()
+	if time == "":
+		return
+	var layers := [["wind_loop", -17.0 if time != "night" else -22.0]]
+	if time in ["night", "dusk", "dawn"]:
+		layers.append(["crickets_loop", -12.0 if time == "night" else -17.0])
+	for l in layers:
+		var p := _mk_player("SFX")
+		p.stream = looped(l[0])
+		p.volume_db = -60.0
+		p.play(randf() * 3.0)
+		var tw := create_tween()
+		tw.tween_property(p, "volume_db", l[1], 2.0)
+		_amb.append(p)
+
 # ------------------------------------------------------------------- music
 
 func music(name: String, fade: float = 1.5, loop: bool = true) -> void:

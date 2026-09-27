@@ -148,6 +148,7 @@ func goto(path: String) -> void:
 	tw.tween_property(_fade, "color:a", 1.0, 0.35)
 	await tw.finished
 	Audio.stop_voice()
+	Audio.ambience("")
 	get_tree().change_scene_to_file(path)
 	await get_tree().process_frame
 	await get_tree().process_frame

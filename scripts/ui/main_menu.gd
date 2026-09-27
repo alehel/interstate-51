@@ -40,6 +40,7 @@ func _build_scene() -> void:
 	add_child(wb)
 	wb.build(w, "dusk")
 	EnvSetup.build(self, "dusk")
+	Audio.ambience("dusk")
 	_center = w.pos(-590, 1050)
 	var car := Car.new()
 	car.setup("merc", Defs.Team.PLAYER, {"weapons": ["mg30", "mg30", "rockets"]})

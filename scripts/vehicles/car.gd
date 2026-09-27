@@ -562,9 +562,14 @@ func _process(dt: float) -> void:
 		if dead:
 			_engine.volume_db = move_toward(_engine.volume_db, -60.0, dt * 30.0)
 		else:
-			var base := 0.55 if mass > 3000.0 else 0.65
-			_engine.pitch_scale = base + rpm * (1.3 if mass > 3000.0 else 1.75) + (0.15 if gear > 1 else 0.0)
-			_engine.volume_db = lerpf(-14.0, -4.0, clampf(throttle + rpm * 0.3, 0.0, 1.0)) + (4.0 if is_player else 0.0)
+			# the loop is a real V8 recorded at a low-mid rpm: keep the shift range
+			# natural (about 0.7x - 1.9x) so it never turns into a chipmunk
+			var heavy := mass > 3000.0
+			var base := 0.72 if heavy else 0.78
+			var span := 0.8 if heavy else 1.05
+			var target := base + rpm * span + (0.08 if gear > 1 else 0.0)
+			_engine.pitch_scale = lerpf(_engine.pitch_scale, target, clampf(dt * 10.0, 0.0, 1.0))
+			_engine.volume_db = lerpf(-15.0, -3.0, clampf(throttle * 0.8 + rpm * 0.4, 0.0, 1.0)) + (3.0 if is_player else 0.0)
 	# tyre squeal
 	if slip > 0.35 and grounded > 1 and not dead:
 		if not _skid:
@@ -690,6 +695,18 @@ func die() -> void:
 	if fx:
 		fx.explosion(global_position + Vector3(0, 1.0, 0), size)
 		fx.attach(self, "fire", 14.0, 25.0, 1.2, Vector3(0, _dims.y * 0.6, 0))
+	var crackle := AudioStreamPlayer3D.new()
+	crackle.stream = Audio.looped("wreck_fire_loop")
+	crackle.bus = "SFX"
+	crackle.unit_size = 7.0
+	crackle.max_distance = 120.0
+	crackle.volume_db = -6.0
+	add_child(crackle)
+	crackle.play(randf() * 2.0)
+	var tw := crackle.create_tween()
+	tw.tween_interval(20.0)
+	tw.tween_property(crackle, "volume_db", -60.0, 5.0)
+	tw.tween_callback(crackle.queue_free)
 	Combat.explode(global_position + Vector3(0, 0.8, 0), 7.0 * size, 25.0, self, false)
 	apply_central_impulse(Vector3(randf_range(-1, 1), 5.5, randf_range(-1, 1)) * mass)
 	apply_torque_impulse(Vector3(randf_range(-1, 1), randf_range(-0.5, 0.5), randf_range(-1, 1)) * mass * 1.6)

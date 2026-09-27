@@ -58,6 +58,7 @@ Rumble is supported, and you can turn it off in Options.
 - **AI** that dogfights: it leads its shots, strafes, jousts, rams, drops mines behind it, fires in bursts, escorts, guards, follows convoy routes, avoids obstacles and steep ground, navigates the road network, and gets itself unstuck.
 - **An open, hand-laid world:** a 6 km basin with two dry lakes, canyons cut by roads, US-95, the Mercury road, Hal's truck stop, the Gold Creek ghost town, Vale's depot, the Silver Queen mine, the Doom Town test houses, the Indian Springs airstrip, Burma-Shave-style signs, billboards, telephone lines, and Joshua trees you can knock down. Distant ranges run out to the horizon.
 - **Seven times of day:** noon, afternoon, golden hour, dusk, night, dawn and morning. Headlights, neon, floodlights and police sirens come on in the dark.
+- **Sound:** real recorded gunfire, explosions, crashes, tyres, V8 engines, desert wind and night crickets (openly licensed, see `CREDITS.md`), with synthesized music.
 - **Effects:** a batched particle engine drives tracers, muzzle flashes, sparks, fire, smoke, dust, debris and shock rings. There is also a mushroom cloud.
 - **HUD:** a 1950s speedometer dial, armor diagram, radar, weapon list, target brackets with health, objective beacons and subtitles.
 
@@ -108,7 +109,8 @@ func run() -> void:
 | Autopilot regression run of a mission (the AI drives Sally, headless, faster than real time) | `godot --headless --path . --fixed-fps 60 -- --mission=5 --autoplay` |
 | Render the trailer | `godot --path . --write-movie trailer.avi --fixed-fps 30 --resolution 1280x720 -- --trailer` |
 | Regenerate the voice lines (needs `pip install piper-tts` and the rhasspy/piper v0.0.2 voice models in `/opt/piper`) | `python3 tools/voice/make_voices.py --force` |
-| Regenerate the music and SFX (see `tools/audio/README.md`) | `python3 tools/audio/make_sfx.py && python3 tools/audio/make_music.py` |
+| Regenerate the music and synthesized SFX (see `tools/audio/README.md`) | `python3 tools/audio/make_sfx.py && python3 tools/audio/make_music.py` |
+| Rebuild the recorded SFX (needs the `supertuxkart-data` and `redeclipse-data` packages extracted into `src/`, see the script's docstring) | `python3 tools/audio/make_sfx_recorded.py src` |
 
 ## Credits and licenses
 
