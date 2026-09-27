@@ -63,7 +63,7 @@ func _ready() -> void:
 		[55.0, "afternoon", _shot_mines],
 		[60.0, "dawn", _shot_duchess],
 		[66.0, "dawn", _shot_atomic],
-		[72.0, "dawn", _shot_finale],
+		[73.0, "dawn", _shot_finale],
 		[80.0, "", _shot_logo],
 	]
 
@@ -164,8 +164,7 @@ func spawn(key: String, pos: Vector3, yaw: float, team: int, ai: String, opts: D
 	c.is_player = opts.get("player", false)
 	c.setup(key, team, opts)
 	add_child(c)
-	c.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(pos.x, world.height(pos.x, pos.z) + 0.8, pos.z))
-	c.linear_velocity = -c.global_transform.basis.z * opts.get("speed", 0.0)
+	c.place(pos, yaw, opts.get("speed", 0.0))
 	if ai != "none":
 		var a := AIDriver.new()
 		a.mode = ai
@@ -436,7 +435,7 @@ func _shot_duchess(t0: float) -> void:
 
 func _shot_atomic(t0: float) -> void:
 	var cp := P(1500, 1300, 2.5)
-	var dir := (Vector3(10600, 0, -2850) - cp)
+	var dir := (Vector3(8200, 0, -2300) - cp)
 	dir.y = 0
 	dir = dir.normalized()
 	var side := Vector3(-dir.z, 0, dir.x)
@@ -447,14 +446,14 @@ func _shot_atomic(t0: float) -> void:
 	ai(d).set_path(PackedVector3Array([a - side * 25.0, b]), 32.0)
 	var s := sally(a + side * 5.0, yaw_to(a, b), ["mg50", "mg50", "rockets"], "attack", 30.0)
 	ai(s).target = d
-	cam_static(cp, cp + dir * 100.0 + Vector3(0, 22, 0))
-	cam.fov = 64.0
+	cam_static(cp, cp + dir * 100.0 + Vector3(0, 30, 0))
+	cam.fov = 68.0
 	if not blast:
 		blast = AtomicBlast.new()
 		blast.level = self
 		add_child(blast)
-		blast.global_position = Vector3(10600, 0, -2850)
-		blast.scale = Vector3.ONE * 4.0
+		blast.global_position = Vector3(8200, 0, -2300)
+		blast.time_scale = 3.2
 	blast.light = env.light
 	blast.sky = env.sky
 	at(t0 + 0.6, func(): blast.detonate())

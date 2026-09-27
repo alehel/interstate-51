@@ -296,6 +296,27 @@ func enable_siren(on: bool) -> void:
 		_siren.queue_free()
 		_siren = null
 
+## Put the car on the ground already settled on its suspension (no drop),
+## aligned to the slope, optionally already rolling forward.
+func place(p: Vector3, yaw: float, spd: float = 0.0) -> void:
+	var w: WorldData = Lib.world
+	var h := p.y
+	var n := Vector3.UP
+	if w:
+		h = w.height(p.x, p.z)
+		n = w.normal(p.x, p.z)
+	var b := Basis(Vector3.UP, yaw)
+	var x := (b.x - n * b.x.dot(n)).normalized()
+	var z := x.cross(n).normalized()
+	global_transform = Transform3D(Basis(x, n, z), Vector3(p.x, h + 0.02, p.z))
+	var comp := mass * 9.8 / 4.0 / spring_k
+	for wh in wheels:
+		wh.comp = comp
+		(wh.pivot as Node3D).position.y = wh.mount.y - (suspension - comp)
+	linear_velocity = -global_transform.basis.z * spd
+	angular_velocity = Vector3.ZERO
+	_prev_vel = linear_velocity
+
 func forward() -> Vector3:
 	return -global_transform.basis.z
 

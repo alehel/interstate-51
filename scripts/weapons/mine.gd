@@ -49,7 +49,7 @@ func _physics_process(dt: float) -> void:
 			continue
 		var d: float = c.global_position.distance_to(global_position)
 		if d < 3.4:
-			Combat.explode(global_position + Vector3(0, 0.3, 0), splash, dmg, owner_car, true, 0.9)
+			Combat.explode(global_position + Vector3(0, 0.3, 0), splash, dmg, owner_car if is_instance_valid(owner_car) else null, true, 0.9)
 			queue_free()
 			return
 	if t > 0.8 and t - dt <= 0.8:

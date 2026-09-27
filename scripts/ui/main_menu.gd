@@ -44,7 +44,7 @@ func _build_scene() -> void:
 	var car := Car.new()
 	car.setup("merc", Defs.Team.PLAYER, {"weapons": ["mg30", "mg30", "rockets"]})
 	add_child(car)
-	car.global_transform = Transform3D(Basis(Vector3.UP, 2.3), _center + Vector3(0, 0.9, 0))
+	car.place(_center, 2.3)
 	car.enable_headlights(true)
 	car.freeze = false
 	_cam = Camera3D.new()

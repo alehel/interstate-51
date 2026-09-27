@@ -140,7 +140,7 @@ func spawn_car(key: String, pos: Vector3, yaw: float, team: int, ai: String, opt
 	c.setup(key, team, opts)
 	add_child(c)
 	var y := world.height(pos.x, pos.z)
-	c.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(pos.x, y + 0.9, pos.z))
+	c.place(Vector3(pos.x, y, pos.z), yaw, opts.get("speed", 0.0))
 	if ai == "player":
 		if Game.autoplay:
 			var a := AIDriver.new()

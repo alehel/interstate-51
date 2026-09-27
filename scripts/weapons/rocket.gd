@@ -46,7 +46,7 @@ func _physics_process(dt: float) -> void:
 	if not hit.is_empty():
 		var col: Object = hit.collider
 		if col and col.has_method("take_damage"):
-			col.take_damage(dmg * 0.5, hit.position, shooter, "rocket")
+			col.take_damage(dmg * 0.5, hit.position, shooter if is_instance_valid(shooter) else null, "rocket")
 		_boom(hit.position)
 		return
 	global_position = to2
@@ -60,5 +60,5 @@ func _physics_process(dt: float) -> void:
 		_boom(global_position)
 
 func _boom(p: Vector3) -> void:
-	Combat.explode(p, splash, dmg, shooter, true, 0.7)
+	Combat.explode(p, splash, dmg, shooter if is_instance_valid(shooter) else null, true, 0.7)
 	queue_free()

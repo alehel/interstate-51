@@ -59,8 +59,8 @@ func run() -> void:
 	blast.light = level.env.light
 	blast.sky = level.env.sky
 	level.add_child(blast)
-	blast.global_position = Vector3(10600, 0, -2850)
-	blast.scale = Vector3.ONE * 4.0
+	blast.global_position = Vector3(8200, 0, -2300)
+	blast.time_scale = 1.4
 	await say("m9_control_01")
 	await say("m9_vale_01")
 	await say("m9_deacon_01")
