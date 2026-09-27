@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="16" fill="#1c1410"/>
+<path d="M64 10 L112 30 V70 C112 96 90 112 64 120 C38 112 16 96 16 70 V30 Z" fill="#e8b23a" stroke="#fff3cf" stroke-width="4"/>
+<text x="64" y="58" font-family="Arial Black,Arial" font-weight="900" font-size="22" text-anchor="middle" fill="#1c1410">INTERSTATE</text>
+<text x="64" y="98" font-family="Arial Black,Arial" font-weight="900" font-size="40" text-anchor="middle" fill="#b3261e">'51</text>
+</svg>

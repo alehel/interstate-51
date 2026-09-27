@@ -1,0 +1,9 @@
+# Godot
+.godot/
+export_presets.cfg
+*.translation
+# builds / renders
+build/
+*.avi
+/.trailer_tmp/
+__pycache__/
