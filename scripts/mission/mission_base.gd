@@ -122,6 +122,23 @@ func wait_reach(pos: Vector3, radius: float = 18.0, label: String = "") -> void:
 	level.clear_beacon(b)
 	Audio.play("objective", -6.0)
 
+## Testing aid: make the autopilot concentrate on the mission's key target.
+func autoplay_focus(n: Node3D) -> void:
+	if Game.autoplay and level.player:
+		var a := Level.ai_of(level.player)
+		if a:
+			a.focus = n
+
+## Testing aid: the autopilot shadows an escort target and guards it.
+func autoplay_escort(c: Car) -> void:
+	if Game.autoplay and level.player:
+		var a := Level.ai_of(level.player)
+		if a:
+			a.mode = "escort"
+			a.leader = c
+			a.leader_offset = Vector3(0, 0, 12)
+			a.guard_radius = 160.0
+
 func teleport_player(pos: Vector3) -> void:
 	var pl: Car = level.player
 	pl.global_position = Vector3(pos.x, world.height(pos.x, pos.z) + 1.5, pos.z)

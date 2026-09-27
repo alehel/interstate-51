@@ -16,6 +16,7 @@ var _items: Array
 
 func _ready() -> void:
 	theme = UiKit.theme()
+	set_anchors_preset(Control.PRESET_FULL_RECT)
 	m = Game.mission_def()
 	add_child(UiKit.backdrop(Color(0.16, 0.11, 0.08), Color(0.05, 0.035, 0.03)))
 	var hb := HBoxContainer.new()
@@ -49,6 +50,8 @@ func _ready() -> void:
 	# right column
 	_right = VBoxContainer.new()
 	_right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_right.custom_minimum_size = Vector2(560, 0)
+	_right.clip_contents = true
 	_right.add_theme_constant_override("separation", 14)
 	hb.add_child(_right)
 	_show_briefing()
@@ -80,8 +83,12 @@ func _draw_marker() -> void:
 	_marker.draw_arc(p, 14.0 + pulse * 8.0, 0, TAU, 32, Color(0.8, 0.1, 0.05, 1.0 - pulse * 0.6), 3.0)
 	_marker.draw_circle(p, 7.0, Color(0.8, 0.1, 0.05))
 	var f := Lib.font("bebasneue")
-	_marker.draw_string_outline(f, p + Vector2(16, -10), m.title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, 6, Color(0.95, 0.9, 0.8))
-	_marker.draw_string(f, p + Vector2(16, -10), m.title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color(0.5, 0.08, 0.05))
+	var tw := f.get_string_size(m.title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26).x
+	var lp := p + Vector2(16, -10)
+	if lp.x + tw > sz.x - 8:
+		lp.x = p.x - 16 - tw
+	_marker.draw_string_outline(f, lp, m.title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, 6, Color(0.95, 0.9, 0.8))
+	_marker.draw_string(f, lp, m.title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color(0.5, 0.08, 0.05))
 	_marker.draw_string(Lib.font("rye"), Vector2(16, sz.y - 16), "NYE COUNTY, NEV.", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(0.35, 0.22, 0.12))
 
 func _process(dt: float) -> void:
@@ -100,11 +107,16 @@ func _show_briefing() -> void:
 	_clear()
 	var idx := Game.current_mission
 	_right.add_child(UiKit.label("MISSION %d OF %d" % [idx + 1, Defs.MISSIONS.size()], "bebasneue", 28, Color(0.8, 0.6, 0.35)))
-	var title := UiKit.label(m.title.to_upper(), "rye", 58, UiKit.GOLD)
+	var title := UiKit.label(m.title.to_upper(), "rye", 50, UiKit.GOLD)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.custom_minimum_size = Vector2(560, 0)
 	title.add_theme_color_override("font_outline_color", Color(0.3, 0.05, 0.03))
 	title.add_theme_constant_override("outline_size", 10)
 	_right.add_child(title)
-	_right.add_child(UiKit.label(m.summary, "bebasneue", 26, UiKit.CREAM))
+	var summ := UiKit.label(m.summary, "bebasneue", 26, UiKit.CREAM)
+	summ.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summ.custom_minimum_size = Vector2(560, 0)
+	_right.add_child(summ)
 	var parts: Array = []
 	for id in m.briefing:
 		parts.append(Audio.line_text(id))

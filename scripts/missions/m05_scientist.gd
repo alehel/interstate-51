@@ -6,24 +6,26 @@ var _warned := false
 var _arrived := false
 
 func setup() -> void:
-	player_start = p(-120, -760)
-	player_yaw = yaw_to(player_start, p(-160, -1000))
+	player_start = p(-185, -1180)
+	player_yaw = yaw_to(player_start, p(-240, -1700))
 
 func run() -> void:
 	var r1 := road("us95", Vector2(-200, -2330), Vector2(150, 300))
 	var r2 := road("boneyard", Vector2(150, 300), Vector2(-700, 950))
 	var route := join([r1, r2])
+	route = route.slice(40)
 	wagon = spawn("wagon", route[0], yaw_to(route[0], route[4]), Defs.Team.PLAYER, "path", {"name": "Dr. Holt"})
 	var wai := Level.ai_of(wagon)
 	wai.set_path(route, 23.0)
 	wai.shoot_on_path = false
-	wagon.damage_mult = 0.7
+	wagon.damage_mult = 0.5
 	protect(wagon, "Dr. Holt was killed.")
 	wagon.damaged.connect(_on_hurt)
 	wai.arrived.connect(func(_c): _arrived = true)
+	autoplay_escort(wagon)
 	var chasers: Array = []
 	for i in 3:
-		var c := spawn("raider", route[0] + Vector3(0, 0, -25.0 - i * 12.0), PI, Defs.Team.ENEMY, "attack", {"skill": 0.55})
+		var c := spawn("raider", route[0] + Vector3((i - 1) * 4.0, 0, -70.0 - i * 15.0), PI, Defs.Team.ENEMY, "attack", {"skill": 0.5})
 		var ai := Level.ai_of(c)
 		ai.focus = wagon
 		ai.aggro = 600.0

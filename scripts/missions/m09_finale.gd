@@ -33,6 +33,7 @@ func run() -> void:
 	vai.arrived.connect(func(_c): _escaped = true)
 	vale.damaged.connect(_on_vale_hurt)
 	level.hud.track(vale)
+	autoplay_focus(vale)
 	var enemies: Array = []
 	for i in 2:
 		var c := spawn("bruiser", dense[0] + Vector3(-5 + i * 10, 0, 22), 0.0, Defs.Team.ENEMY, "escort", {"skill": 0.75})
@@ -59,6 +60,7 @@ func run() -> void:
 	blast.sky = level.env.sky
 	level.add_child(blast)
 	blast.global_position = Vector3(10600, 0, -2850)
+	blast.scale = Vector3.ONE * 4.0
 	await say("m9_control_01")
 	await say("m9_vale_01")
 	await say("m9_deacon_01")

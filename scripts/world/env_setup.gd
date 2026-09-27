@@ -31,11 +31,11 @@ const PRESETS := {
 		"exposure": 1.1,
 	},
 	"night": {
-		"el": 38.0, "az": 200.0, "sun": Color(0.5, 0.6, 0.9), "energy": 0.32, "moon": true,
-		"top": Color(0.008, 0.012, 0.035), "hor": Color(0.05, 0.06, 0.1), "ground": Color(0.02, 0.02, 0.03),
-		"amb": 0.35, "fog": Color(0.04, 0.05, 0.08), "fog_d": 0.00018, "clouds": 0.2,
-		"cloud_col": Color(0.12, 0.13, 0.18), "cloud_sh": Color(0.05, 0.05, 0.08), "stars": 1.0, "lights": true,
-		"exposure": 1.25,
+		"el": 38.0, "az": 200.0, "sun": Color(0.55, 0.65, 0.95), "energy": 0.5, "moon": true,
+		"top": Color(0.01, 0.016, 0.045), "hor": Color(0.07, 0.08, 0.14), "ground": Color(0.03, 0.03, 0.04),
+		"amb": 0.7, "fog": Color(0.05, 0.06, 0.1), "fog_d": 0.00016, "clouds": 0.2,
+		"cloud_col": Color(0.14, 0.15, 0.2), "cloud_sh": Color(0.05, 0.05, 0.08), "stars": 1.0, "lights": true,
+		"exposure": 1.45,
 	},
 	"dawn": {
 		"el": 4.0, "az": 88.0, "sun": Color(1.0, 0.6, 0.45), "energy": 0.9,

@@ -111,9 +111,9 @@ func _ready() -> void:
 	Audio.line_finished.connect(_on_line_done)
 	# hint
 	_hint = UiKit.label("", "bebasneue", 26, Color(1, 0.95, 0.8))
-	_hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_hint.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.position = Vector2(-500, -262)
+	_hint.position = Vector2(-500, 84)
 	_hint.size = Vector2(1000, 36)
 	_hint.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	_hint.add_theme_constant_override("outline_size", 6)

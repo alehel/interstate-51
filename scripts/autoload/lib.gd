@@ -287,7 +287,7 @@ func _make_textures() -> void:
 	for y in 128:
 		for x in 128:
 			var r := rust.get_pixel(x, y).r
-			var c := Color(1, 1, 1).lerp(Color(0.62, 0.36, 0.2), smoothstep(0.45, 0.65, r))
+			var c := Color(1, 1, 1).lerp(Color(0.66, 0.42, 0.26), smoothstep(0.58, 0.8, r) * 0.75)
 			rust.set_pixel(x, y, c)
 	tex["rust"] = _finish(rust)
 

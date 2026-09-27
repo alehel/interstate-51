@@ -21,15 +21,19 @@ var sky: ShaderMaterial
 var _light_e := 1.0
 var _light_c := Color.WHITE
 
-func _mat(col: Color, tex: bool) -> StandardMaterial3D:
+func _mat(col: Color, tex: bool, lit: bool = true) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
-	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL if lit else BaseMaterial3D.SHADING_MODE_UNSHADED
 	m.albedo_color = col
-	if tex:
-		m.albedo_texture = Lib.tex.clouds
-		m.uv1_scale = Vector3(3, 2, 1)
+	m.roughness = 1.0
+	m.metallic_specular = 0.0
+	if lit:
+		# soft self-glow so the shadowed side isn't black against the dawn sky
+		m.emission_enabled = true
+		m.emission = Color(col.r, col.g, col.b) * 0.35
 	m.disable_fog = true
-	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	if col.a < 0.99 or not lit:
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	return m
 
 func _sphere(r: float, m: Material) -> MeshInstance3D:
@@ -47,9 +51,9 @@ func _sphere(r: float, m: Material) -> MeshInstance3D:
 
 func _ready() -> void:
 	visible = false
-	_fb_mat = _mat(Color(1.0, 0.95, 0.8, 1.0), true)
-	_smoke_mat = _mat(Color(0.62, 0.5, 0.44, 0.95), true)
-	_cap_mat = _mat(Color(0.75, 0.6, 0.5, 0.97), true)
+	_fb_mat = _mat(Color(1.0, 0.95, 0.8, 1.0), false, false)
+	_smoke_mat = _mat(Color(0.8, 0.68, 0.62, 1.0), false)
+	_cap_mat = _mat(Color(0.9, 0.78, 0.7, 1.0), false)
 	_fireball = _sphere(1.0, _fb_mat)
 	add_child(_fireball)
 	_stem = MeshInstance3D.new()
@@ -64,11 +68,14 @@ func _ready() -> void:
 	add_child(_stem)
 	_cap = Node3D.new()
 	add_child(_cap)
-	for k in 10:
-		var a := TAU * k / 10.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1951
+	for k in 26:
+		var a := TAU * k / 13.0 + rng.randf() * 0.3
+		var r := 0.8 if k < 13 else 0.45
 		var s := _sphere(1.0, _cap_mat)
-		s.position = Vector3(cos(a) * 0.75, randf_range(-0.1, 0.15), sin(a) * 0.75)
-		s.scale = Vector3.ONE * randf_range(0.55, 0.75)
+		s.position = Vector3(cos(a) * r, rng.randf_range(-0.15, 0.25) + (0.2 if k >= 13 else 0.0), sin(a) * r)
+		s.scale = Vector3.ONE * rng.randf_range(0.4, 0.65)
 		_cap.add_child(s)
 	var top := _sphere(1.0, _cap_mat)
 	top.position = Vector3(0, 0.35, 0)
@@ -76,14 +83,19 @@ func _ready() -> void:
 	_cap.add_child(top)
 	_ring = Node3D.new()
 	add_child(_ring)
-	var ring_mat := _mat(Color(0.95, 0.93, 0.9, 0.0), true)
+	var ring_mat := _mat(Color(0.97, 0.96, 0.95, 0.0), false)
 	_ring.set_meta("mat", ring_mat)
 	for k in 16:
 		var a := TAU * k / 16.0
 		var s := _sphere(1.0, ring_mat)
 		s.position = Vector3(cos(a), 0, sin(a))
-		s.scale = Vector3(0.25, 0.08, 0.25)
+		s.scale = Vector3(0.2, 0.04, 0.2)
 		_ring.add_child(s)
+	for k in 6:
+		var lump := _sphere(1.0, _smoke_mat)
+		lump.scale = Vector3(0.9, 0.18, 0.9)
+		lump.position = Vector3(0, (k + 0.5) / 6.0, 0)
+		_stem.add_child(lump)
 	_skirt = _sphere(1.0, _smoke_mat)
 	_skirt.scale = Vector3(1, 0.15, 1)
 	add_child(_skirt)
@@ -97,7 +109,7 @@ func detonate() -> void:
 		_light_c = light.light_color
 	var hud = level.get("hud") if level else null
 	if hud and hud.has_method("whiteout"):
-		hud.whiteout(2.6)
+		hud.whiteout(1.6)
 	InputSetup.rumble(0.4, 0.2, 1.5)
 
 func _process(dt: float) -> void:
@@ -125,7 +137,7 @@ func _process(dt: float) -> void:
 	_cap.visible = t > 2.0
 	_cap.position = _fireball.position + Vector3(0, fr * 0.2, 0)
 	_cap.scale = Vector3(fr * (1.0 + cap_s * 1.2), fr * (0.7 + cap_s * 0.5), fr * (1.0 + cap_s * 1.2))
-	_cap_mat.albedo_color = Color(0.72, 0.58, 0.5, 0.97).lerp(Color(0.95, 0.6, 0.35, 0.97), heat * 0.7)
+	_cap_mat.albedo_color = Color(0.9, 0.78, 0.7, 1.0).lerp(Color(1.0, 0.62, 0.35, 1.0), heat * 0.7)
 	# stem
 	var stem_h := maxf(rise - fr * 0.5, 1.0)
 	_stem.scale = Vector3(90.0 + t * 4.0, stem_h, 90.0 + t * 4.0)
@@ -134,7 +146,7 @@ func _process(dt: float) -> void:
 	# condensation ring
 	var rm: StandardMaterial3D = _ring.get_meta("mat")
 	var ra := clampf((t - 3.0) / 2.0, 0.0, 1.0) * clampf((16.0 - t) / 5.0, 0.0, 1.0)
-	rm.albedo_color.a = ra * 0.8
+	rm.albedo_color.a = ra * 0.35
 	_ring.position = Vector3(0, rise * 0.7, 0)
 	_ring.scale = Vector3.ONE * (fr * 1.6 + t * 40.0)
 	# base surge

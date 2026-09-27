@@ -50,12 +50,11 @@ func run() -> void:
 	await say("m7_hollis_02")
 	var r1 := road("mine", Vector2(1700, -2150), Vector2(1450, -700))
 	var r2 := road("mercury", Vector2(1450, -700), Vector2(400, -760))
-	var shed := p(1684, -2128)
-	var route := join([PackedVector3Array([shed, p(1680, -2095)]), r1, r2])
-	bessie = spawn("semi", shed, yaw_to(shed, center + Vector3(0, 0, 60)), Defs.Team.PLAYER, "path", {"name": "Hollis (Bessie)"})
+	var route := join([r1, r2])
+	var k0 := mini(7, r1.size() - 4)
+	bessie = spawn("semi", r1[k0], yaw_to(r1[k0], r1[k0 + 3]), Defs.Team.PLAYER, "path", {"name": "Hollis (Bessie)"})
 	var bai := Level.ai_of(bessie)
 	bai.set_path(route, 16.0)
-	bai.path_i = 0
 	bai.shoot_on_path = false
 	bessie.damage_mult = 0.8
 	protect(bessie, "Hollis didn't make it.")
@@ -64,6 +63,7 @@ func run() -> void:
 	hai.leader = bessie
 	hai.leader_offset = Vector3(0, 0, -20)
 	objective("escort", "Escort Hollis's rig out to the Mercury road")
+	autoplay_escort(bessie)
 	var w1: Array = []
 	for i in 3:
 		var c := spawn("raider", p(1800 + i * 12, -2230), PI, Defs.Team.ENEMY, "attack", {"skill": 0.65})

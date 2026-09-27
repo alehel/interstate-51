@@ -21,6 +21,8 @@ func run() -> void:
 	hai.leader_offset = Vector3(0, 0, -18)
 	hai.guard_radius = 110.0
 	hai.hold = true
+	truck.damage_mult = 0.6
+	hearse.damage_mult = 0.6
 	protect(truck, "The supply truck was destroyed.")
 	protect(hearse, "Preacher's Glory Wagon was destroyed.")
 	truck.damaged.connect(_on_truck_hurt)
@@ -39,6 +41,7 @@ func run() -> void:
 	tai.hold = false
 	hai.hold = false
 	objective("escort", "Escort Preacher's convoy to the Boneyard")
+	autoplay_escort(truck)
 	tai.arrived.connect(func(_c): _arrived = true)
 	# wave 1: ahead in the pass
 	await wait(14.0)

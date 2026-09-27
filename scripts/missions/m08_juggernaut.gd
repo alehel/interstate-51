@@ -39,6 +39,7 @@ func run() -> void:
 	pickup("ammo", p(1990, 900))
 	pickup("repair", p(1980, 1600))
 	level.hud.track(jug)
+	autoplay_focus(jug)
 	await say("m8_rosa_01")
 	objective("jug", "Destroy the Juggernaut before it reaches Indian Springs")
 	sayn("m8_legion_01")

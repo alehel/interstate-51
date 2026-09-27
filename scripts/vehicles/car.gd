@@ -232,7 +232,42 @@ func _ready() -> void:
 	if _engine and _engine.stream:
 		_engine.play(randf() * 0.5)
 
+var _flares: Array = []
+
+func _flare(pos: Vector3, col: Color, size: float) -> void:
+	var sp := Sprite3D.new()
+	sp.texture = Lib.tex.flare
+	sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sp.shaded = false
+	sp.transparent = true
+	sp.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
+	sp.modulate = col
+	sp.pixel_size = size / 64.0
+	sp.position = pos
+	sp.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_texture = Lib.tex.flare
+	m.albedo_color = col
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	m.disable_fog = true
+	sp.material_override = m
+	add_child(sp)
+	_flares.append(sp)
+
 func enable_headlights(on: bool) -> void:
+	if on and _flares.is_empty():
+		var vis := CarBuilder.build(def_key)
+		for h in vis.head:
+			_flare(h + Vector3(0, 0, -0.12), Color(1.0, 0.9, 0.65, 0.9), 1.6)
+		for tl in vis.tail:
+			_flare(tl + Vector3(0, 0, 0.1), Color(1.0, 0.15, 0.08, 0.8), 0.7)
+	elif not on:
+		for f in _flares:
+			f.queue_free()
+		_flares.clear()
 	if on and not _headlight:
 		_headlight = SpotLight3D.new()
 		_headlight.light_color = Color(1.0, 0.92, 0.75)
@@ -328,7 +363,7 @@ func _physics_process(dt: float) -> void:
 			drive += power * 0.5 * thr   # help stop reversing
 	var braking := 0.0
 	if brk > 0.01:
-		if speed > 1.5:
+		if speed > 1.5 or speed < -16.0:
 			braking = mass * 9.0 * brk
 		else:
 			var rcurve := clampf(1.0 - pow(maxf(-speed, 0.0) / 14.0, 2.0), 0.0, 1.0)
@@ -369,13 +404,13 @@ func _physics_process(dt: float) -> void:
 		var pv := linear_velocity + angular_velocity.cross(hit.position - com)
 		var v_long := pv.dot(wf)
 		var v_lat := pv.dot(right)
-		var mu := 1.25 * grip * grip_mod
+		var mu := 1.55 * grip * grip_mod
 		var rear: bool = not w.front
 		if hb and rear:
 			mu *= 0.42
 		var load := maxf(fs, mass * 9.8 * 0.1)
 		var max_f := mu * load
-		var f_lat := -v_lat * per_mass * 14.0
+		var f_lat := -v_lat * per_mass * 16.0
 		var f_long := 0.0
 		if rear:
 			f_long += drive * 0.5
@@ -400,6 +435,12 @@ func _physics_process(dt: float) -> void:
 			pivot.rotation.y = -steer_ang
 		w.spin += v_long / wheel_radius * dt
 		pivot.rotation.x = -w.spin if not w.left else -w.spin
+	# arcade yaw assist: lets cars carve tighter lines at speed than raw tyre grip allows
+	if grounded >= 2 and aspeed > 4.0 and absf(steer_smooth) > 0.05 and not hb:
+		var target_yaw := -steer_smooth * lerpf(1.5, 0.75, speed_factor) * signf(speed)
+		var cur_yaw := angular_velocity.dot(up)
+		var k := clampf(aspeed / 12.0, 0.0, 1.0)
+		apply_torque(up * (target_yaw - cur_yaw) * mass * 3.0 * k)
 	# aerodynamic drag
 	var v := linear_velocity
 	apply_central_force(-v * v.length() * 0.35)
@@ -585,10 +626,11 @@ func take_damage(amount: float, world_pos: Vector3, source: Node = null, kind: S
 	if source is Car and source != self:
 		if source.team == team:
 			amount *= 0.2
-		if not is_player:
-			amount *= 1.0
-		elif source.team != team:
+		if is_player and source.team != team:
 			amount *= Game.difficulty_mult()
+		elif not is_player and team == Defs.Team.PLAYER and source.team != team:
+			# escorts and allies are the player's job to protect: AI fire on them is softened
+			amount *= 0.3 * Game.difficulty_mult()
 		last_attacker = source
 	var side := side_of(world_pos)
 	var a: float = armor[side]

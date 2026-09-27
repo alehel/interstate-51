@@ -32,6 +32,7 @@ const CREDITS := [
 
 func _ready() -> void:
 	theme = UiKit.theme()
+	set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(UiKit.backdrop(Color(0.05, 0.03, 0.06), Color(0.2, 0.08, 0.05)))
 	Audio.music("menu_theme", 2.0)
 	var finished_campaign: bool = Game.progress.completed.has("m9")
@@ -83,7 +84,7 @@ func _roll() -> void:
 		_scroll.add_child(l)
 	await get_tree().process_frame
 	var vw := get_viewport_rect().size
-	_scroll.position = Vector2((vw.x - 1200) * 0.5, vw.y + 20)
+	_scroll.position = Vector2((vw.x - 1200) * 0.5, vw.y * 0.55)
 	_rolling = true
 
 func _process(dt: float) -> void:

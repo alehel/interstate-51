@@ -25,7 +25,7 @@ func _draw() -> void:
 	_draw_weapons(p, Vector2(sz.x - 470, sz.y - 150))
 	_draw_target(lvl, p)
 	_draw_beacons(lvl)
-	_draw_tracked(Vector2(sz.x * 0.5 - 150, 80))
+	_draw_tracked(Vector2(sz.x * 0.5 - 150, 136))
 	_draw_crosshair(lvl, p)
 
 func _txt(pos: Vector2, s: String, size_: int, col: Color, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, f: Font = null) -> void:

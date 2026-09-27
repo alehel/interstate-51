@@ -3,6 +3,7 @@ extends Control
 
 func _ready() -> void:
 	theme = UiKit.theme()
+	set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(UiKit.backdrop(Color(0.12, 0.08, 0.06), Color(0.04, 0.03, 0.02)))
 	var r: Dictionary = Game.last_result
 	var vb := VBoxContainer.new()

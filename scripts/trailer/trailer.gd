@@ -75,6 +75,10 @@ func _build_overlay() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(root)
+	_white = ColorRect.new()
+	_white.color = Color(1, 0.98, 0.92, 0)
+	_white.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(_white)
 	# letterbox for the cinematic feel
 	for top in [true, false]:
 		var bar := ColorRect.new()
@@ -85,10 +89,6 @@ func _build_overlay() -> void:
 		else:
 			bar.offset_top = -72
 		root.add_child(bar)
-	_white = ColorRect.new()
-	_white.color = Color(1, 0.98, 0.92, 0)
-	_white.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_child(_white)
 	_black = ColorRect.new()
 	_black.color = Color(0, 0, 0, 1)
 	_black.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -208,7 +208,7 @@ func cam_follow(n: Node3D, offset: Vector3, look_off: Vector3 = Vector3(0, 1, 0)
 	_cam_fn = func(_lt: float):
 		if not is_instance_valid(n):
 			return
-		var yaw := atan2(-n.global_transform.basis.z.x, -n.global_transform.basis.z.z)
+		var yaw := atan2(n.global_transform.basis.z.x, n.global_transform.basis.z.z)
 		var target: Vector3 = n.global_position + Basis(Vector3.UP, yaw) * offset
 		target.y = maxf(target.y, world.height(target.x, target.z) + 0.8)
 		if not state.init:
@@ -241,7 +241,7 @@ func _shot_aerial(t0: float) -> void:
 	at(t0 + 1.0, func(): card("NEVADA, 1951.", "", 3.6))
 
 func _shot_highway(t0: float) -> void:
-	var route := road("us95", Vector2(-230, -1560), Vector2(150, 300))
+	var route := road("us95", Vector2(-236, -1490), Vector2(150, 300))
 	var s := sally(route[0], yaw_to(route[0], route[3]), ["mg30", "mg30", "rockets"], "path", 36.0)
 	ai(s).set_path(route, 40.0)
 	var cp := P(-178, -1330, 1.3)
@@ -250,7 +250,7 @@ func _shot_highway(t0: float) -> void:
 	at(t0 + 0.8, func(): card("THE ARMY IS TESTING ATOM BOMBS", "OUT ON THE FLATS.", 3.4))
 
 func _shot_convoy(t0: float) -> void:
-	var route := road("mercury", Vector2(1800, -630), Vector2(1000, -760))
+	var route := road("mercury", Vector2(1700, -650), Vector2(1000, -760))
 	var keys := ["bruiser", "raider", "raider", "hauler", "raider"]
 	var lead: Car
 	for i in keys.size():
@@ -261,13 +261,13 @@ func _shot_convoy(t0: float) -> void:
 		if i == 0:
 			lead = c
 	# convoy drives west toward the camera
-	cam_static(P(1560, -700, 1.0), P(1720, -660, 2.0))
+	cam_static(P(1575, -700, 1.0), P(1700, -660, 2.0))
 	cam.fov = 45.0
 	at(t0 + 0.2, func(): Audio.say("m9_vale_01"))
 	at(t0 + 1.0, func(): card("THE CHROME LEGION WANTS", "ONE OF THEIR OWN.", 2.6))
 
 func _shot_boneyard(t0: float) -> void:
-	var c := P(-640, 975)
+	var c := P(-590, 1050)
 	var s := sally(c, 2.3, ["mg30", "mg30", "rockets"], "none")
 	s.enable_headlights(true)
 	var a0 := 0.9
@@ -435,26 +435,31 @@ func _shot_duchess(t0: float) -> void:
 	at(t0 + 1.0, func(): card("THE MAN WHO OWNS THE BOMB", "OWNS THE FUTURE.", 3.0))
 
 func _shot_atomic(t0: float) -> void:
-	var a := P(1600, 1150)
-	var b := P(2350, 1450)
-	var d := spawn("duchess", a + Vector3(20, 0, -10), yaw_to(a, b), Defs.Team.ENEMY, "path", {"speed": 30.0})
-	ai(d).set_path(PackedVector3Array([a, b]), 32.0)
-	var s := sally(a - Vector3(10, 0, 0), yaw_to(a, b), ["mg50", "mg50", "rockets"], "attack", 30.0)
+	var cp := P(1500, 1300, 2.5)
+	var dir := (Vector3(10600, 0, -2850) - cp)
+	dir.y = 0
+	dir = dir.normalized()
+	var side := Vector3(-dir.z, 0, dir.x)
+	var mid := cp + dir * 32.0
+	var a := mid + side * 70.0
+	var b := mid - side * 200.0
+	var d := spawn("duchess", a - side * 25.0, yaw_to(a, b), Defs.Team.ENEMY, "path", {"speed": 30.0})
+	ai(d).set_path(PackedVector3Array([a - side * 25.0, b]), 32.0)
+	var s := sally(a + side * 5.0, yaw_to(a, b), ["mg50", "mg50", "rockets"], "attack", 30.0)
 	ai(s).target = d
-	var dir := Vector3(sin(deg_to_rad(75.0)), 0, -cos(deg_to_rad(75.0)))
-	var cp := a + Vector3(-60, 3.0, 90)
-	cam_static(cp, cp + dir * 100.0 + Vector3(0, 10, 0))
-	cam.fov = 62.0
+	cam_static(cp, cp + dir * 100.0 + Vector3(0, 22, 0))
+	cam.fov = 64.0
 	if not blast:
 		blast = AtomicBlast.new()
 		blast.level = self
 		add_child(blast)
 		blast.global_position = Vector3(10600, 0, -2850)
+		blast.scale = Vector3.ONE * 4.0
 	blast.light = env.light
 	blast.sky = env.sky
-	at(t0 + 1.0, func(): blast.detonate())
-	at(t0 + 2.2, func(): Audio.say("m9_rosa_01"))
-	at(t0 + 4.3, func(): Audio.say("m9_deacon_02"))
+	at(t0 + 0.6, func(): blast.detonate())
+	at(t0 + 1.8, func(): Audio.say("m9_rosa_01"))
+	at(t0 + 4.0, func(): Audio.say("m9_deacon_02"))
 
 func _shot_finale(t0: float) -> void:
 	var a := P(2150, 1500)
@@ -501,6 +506,11 @@ func _shot_logo(t0: float) -> void:
 func _process(dt: float) -> void:
 	if not _started:
 		_started = true
+		if _tstart > 0.0:
+			_black.color.a = 0.0
+			for i in SHOTS.size():
+				if SHOTS[i][0] <= _tstart:
+					_shot = i - 1
 		Audio.music("trailer_theme", 0.01, false)
 	t += dt
 	var next := _shot + 1
@@ -523,7 +533,29 @@ func _process(dt: float) -> void:
 			i += 1
 	if _cam_fn.is_valid():
 		_cam_fn.call(t - _shot_t0)
+	if _tshots != "" and _tstart > 0.0:
+		if int(t * 30) % 30 == 0:
+			get_viewport().get_texture().get_image().save_png("%s/t_%03d.png" % [_tshots, int(t)])
+		if t > _tstart + 12.0:
+			get_tree().quit()
+	elif _tshots != "" and _shot >= 0 and t - _shot_t0 >= 1.8 and _last_snap != _shot:
+		_last_snap = _shot
+		get_viewport().get_texture().get_image().save_png("%s/shot_%02d.png" % [_tshots, _shot])
 	if t > LENGTH + 0.5:
 		get_tree().quit()
 
 var _shot_t0 := 0.0
+var _last_snap := -1
+var _tshots := ""
+var _tstart := -1.0
+
+func _enter_tree() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--tstart="):
+			t = float(a.substr(9))
+			for i in SHOTS.size():
+				pass
+			_tstart = t
+		if a.begins_with("--tshots="):
+			_tshots = a.substr(9)
+			DirAccess.make_dir_recursive_absolute(_tshots)

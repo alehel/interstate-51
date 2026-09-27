@@ -76,12 +76,15 @@ func _find_target(radius: float) -> Node3D:
 	if focus and is_instance_valid(focus) and not (focus is Car and focus.dead):
 		var lvl := get_tree().current_scene
 		var pl = lvl.get("player") if lvl else null
-		if pl and pl is Car and not pl.dead and pl.global_position.distance_to(car.global_position) < 35.0:
+		if pl and pl is Car and pl != car and not pl.dead and pl.global_position.distance_to(car.global_position) < 35.0:
 			return pl
 		return focus
 	var best: Node3D = null
 	var bd := radius
-	for n in get_tree().get_nodes_in_group(_hostile_group()):
+	var cands: Array = get_tree().get_nodes_in_group(_hostile_group())
+	if car.is_player:
+		cands.append_array(get_tree().get_nodes_in_group("targets"))
+	for n in cands:
 		if n is Car and n.dead:
 			continue
 		var d: float = n.global_position.distance_to(car.global_position)

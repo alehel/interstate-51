@@ -242,6 +242,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if input_locked and event.is_action_pressed("skip"):
 		skip_requested = true
 		Audio.stop_voice()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("pause") and not get_tree().paused:
 		hud.pause_menu(true)
 		get_viewport().set_input_as_handled()
